@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from scraper.utils import clean_price, clean_rating, clean_availability
 
 BASE_URL = "https://books.toscrape.com/catalogue/"
 
@@ -14,11 +15,13 @@ def parse_products(html: str) -> list[dict]:
 
         title = item.h3.a["title"]
 
-        price = item.select_one(".price_color").text
+        price_raw = item.select_one(".price_color").text
+        rating_raw = item.select_one(".star-rating")["class"][1]
+        availability_raw = item.select_one(".availability").text.strip()
 
-        rating = item.select_one(".star-rating")["class"][1]
-
-        availability = item.select_one(".availability").text.strip()
+        price = clean_price(price_raw)
+        rating = clean_rating(rating_raw)
+        availability = clean_availability(availability_raw)
 
         relative_url = item.h3.a["href"]
         product_url = BASE_URL + relative_url
