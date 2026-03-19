@@ -38,3 +38,29 @@ def parse_products(html: str) -> list[dict]:
         })
 
     return products
+
+def parse_product_detail(html: str) -> dict:
+    soup = BeautifulSoup(html, "html.parser")
+
+    # descrição
+    desc_tag = soup.select_one("#product_description + p")
+    description = desc_tag.text.strip() if desc_tag else ""
+
+    # categoria (breadcrumb)
+    category = soup.select("ul.breadcrumb li a")[-1].text.strip()
+
+    # UPC
+    table = soup.select("table tr")
+    upc = ""
+
+    for row in table:
+        header = row.select_one("th").text.strip()
+        if header == "UPC":
+            upc = row.select_one("td").text.strip()
+            break
+
+    return {
+        "description": description,
+        "category": category,
+        "upc": upc
+    }

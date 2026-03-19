@@ -22,5 +22,8 @@ def export_products(products: list, filename="data/products.csv"):
                 p["rating"],
                 p["availability"],
                 p["product_url"],
-                p["image_url"]
+                p["image_url"],
+                p["description"],
+                p["category"],
+                p["upc"]
             ])
