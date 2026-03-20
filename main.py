@@ -1,7 +1,7 @@
 import asyncio
-
+import aiohttp
 from scraper.exporter import export_products
-from scraper.fetcher import fetch_html, fetch_multiple
+from scraper.fetcher import fetch, fetch_multiple
 from scraper.parser import parse_products, parse_product_detail
 
 
@@ -9,22 +9,30 @@ URL = "https://books.toscrape.com/catalogue/page-1.html"
 
 
 async def main():
-    html = await fetch_html(URL)
+    concurrency = 3
+    semaphore = asyncio.Semaphore(concurrency)
+    async with aiohttp.ClientSession() as session:
+        html = await fetch(session,URL,semaphore)
 
-    products = parse_products(html)
+        products = parse_products(html)
 
-    # pegar links dos produtos
-    product_urls = [p["product_url"] for p in products]
+        # pegar links dos produtos
+        product_urls = [p["product_url"] for p in products]
 
-    # buscar páginas dos produtos
-    product_pages = await fetch_multiple(product_urls)
+        # buscar páginas dos produtos
+        product_pages = await fetch_multiple(session, product_urls)
 
-    # extrair detalhes
-    for product, page_html in zip(products, product_pages):
-        details = parse_product_detail(page_html)
-        product.update(details)
+        # extrair detalhes
+        for product, page_html in zip(products, product_pages):
 
-    export_products(products)
+            if not page_html:
+                continue
+
+            details = parse_product_detail(page_html)
+
+            product.update(details)
+
+        export_products(products)
 
     print(f"Scraped {len(products)} products with details")
 

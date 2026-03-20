@@ -12,7 +12,10 @@ def export_products(products: list, filename="data/products.csv"):
             "rating",
             "availability",
             "product_url",
-            "image_url"
+            "image_url",
+            "description",
+            "category",
+            "upc"
         ])
 
         for p in products:
