@@ -1,15 +1,28 @@
 import asyncio
 import aiohttp
-from scraper.exporter import export_products
+import argparse
+from scraper.exporter import export_csv, export_json
 from scraper.fetcher import fetch, fetch_multiple
 from scraper.parser import parse_products, parse_product_detail
 
 
 URL = "https://books.toscrape.com/catalogue/page-1.html"
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Product Scraper")
+
+    parser.add_argument("--url", type=str, default=URL)
+    parser.add_argument("--concurrency", type=int, default=5)
+
+    return parser.parse_args()
+
 
 async def main():
-    concurrency = 3
+    args = parse_args()
+
+    url = args.url
+    concurrency = args.concurrency
+
     semaphore = asyncio.Semaphore(concurrency)
     async with aiohttp.ClientSession() as session:
         html = await fetch(session,URL,semaphore)
@@ -32,7 +45,8 @@ async def main():
 
             product.update(details)
 
-        export_products(products)
+        export_csv(products)
+        export_json(products)
 
     print(f"Scraped {len(products)} products with details")
 

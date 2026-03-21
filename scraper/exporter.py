@@ -1,7 +1,8 @@
 import csv
+import json
 
 
-def export_products(products: list, filename="data/products.csv"):
+def export_csv(products: list, filename="data/products.csv"):
 
     with open(filename, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
@@ -30,3 +31,8 @@ def export_products(products: list, filename="data/products.csv"):
                 p["category"],
                 p["upc"]
             ])
+
+
+def export_json(products: list, filename="data/products.json"):
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(products, f, indent=2, ensure_ascii=False)
